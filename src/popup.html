@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Extension Popup</title>
+  <style>
+    /* Style for buttons to ensure even spacing */
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    } 
+    button {
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="button-row">
+    <button id="cambiarColores">Color</button>
+    <button id="ejeY">Eje</button>
+  </div>
+  <div class="button-row">
+    <button id="button15">15</button>
+    <button id="button60">60</button>
+    <button id="button1D">1D</button>
+  </div>
+  <div class="button-row">
+    <button id="buttonNoc">Noc</button>
+    <button id="buttonDesfase1D">-1D</button>
+  </div>
+  <div class="button-row">
+    <button id="CSV">CSV</button>
+	<button id="XLS">XLS</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
