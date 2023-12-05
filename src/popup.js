@@ -42,15 +42,15 @@ function toggleAllSeriesVisibility(onoff){
 
 function funSetearEjesY(){
 	var chart = Highcharts.charts.slice(-1)[0];
-	for( let i = 0; i < chart.yAxis.length; i++ ){
-		chart.yAxis[i].setExtremes(0);
-	}
+	chart.yAxis.forEach( (axis) => { axis.update({min : 0}, false)} );
+	chart.yAxis.forEach( (axis) => { axis.update({tickAmount : 13}, false)} );
+	chart.redraw();
 }
 
 function funCambiarColores() {
 	console.log("funCambiarColores");
-	var newColors = ["#FF6B6B","#FFFF00","#0082C8","#F58230","#FF0000","#46F0F0","#F032E6","#D2F53C","#FABEBE","#3CB44B",
-				 "#008080","#E6BEFF","#AA6E28","#FFFAC8","#800000","#AAFFC3","#808000","#FFD7B4","#000080","#AAAAAA","#FFFFFF","#000000"];
+	var newColors = ["#FF6B6B","#FFFF00","#0082C8","#F58230","#FF0000","#46F0F0","#F032E6","#D2F59C","#BABEBE","#3CB44B",
+				 "#008080","#E6BEFF","#AA6E28","#FFFAC8","#800000","#AAFFC3","#808000","#FFD7B4","#000080","#FFFFFF","#000000"];
 
 	var chart = Highcharts.charts.slice(-1)[0];
 	chart.series.forEach((series, i) => {
