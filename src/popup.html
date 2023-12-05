@@ -1,37 +1,55 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>My Extension Popup</title>
-  <style>
-    /* Style for buttons to ensure even spacing */
-    .button-row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    } 
-    button {
-      padding: 8px 12px;
-    }
-  </style>
-</head>
-<body>
-  <div class="button-row">
-    <button id="cambiarColores">Color</button>
-    <button id="ejeY">Eje</button>
-  </div>
-  <div class="button-row">
-    <button id="button15">15</button>
-    <button id="button60">60</button>
-    <button id="button1D">1D</button>
-  </div>
-  <div class="button-row">
-    <button id="buttonNoc">Noc</button>
-    <button id="buttonDesfase1D">-1D</button>
-  </div>
-  <div class="button-row">
-    <button id="CSV">CSV</button>
-	<button id="XLS">XLS</button>
-  </div>
-  <script src="popup.js"></script>
-</body>
+	<head>
+	  <title>Botonera Pop-Up</title>
+	  <style>
+		.button-row {
+			display: flex;	
+		}
+		button {
+			padding: 5px 12px;
+			margin:3px;
+		}
+		
+		.title{
+			font-weight: bold;
+			padding-top:10px;
+			margin-bottom:5px;
+			line-height: 0%;
+		}
+	  </style>
+	</head>
+	<body>
+		<div class="title"> Grafico </div>
+		<div class="button-row">
+			<button id="cambiarColores">Color</button>
+			<button id="ejeY">Eje</button>
+		</div>
+		<div class="title"> Leyendas </div>
+		<div class="button-row">
+			<button id="buttonOFF">OFF</button>
+			<button id="buttonON">ON</button>
+		</div>  
+		<div class="title"> Promedios </div>
+		<div class="button-row">
+			<button id="button15">15</button>
+			<button id="button60">60</button>
+		</div>
+		<div class="button-row">
+			<button id="button1D">1D</button>
+			<button id="buttonNoc">Noc</button>
+		</div>
+		<div class="title"> Comparativo </div>
+		<div class="button-row">
+			<button id="buttonDesfase1D">-1D</button>
+			<button id="buttonDesfase7D">-7D</button>
+		</div>
+		<div class="title"> Descarga </div>
+		<div class="button-row">
+			<button id="CSV">CSV</button>
+			<button id="XLS">XLS</button>
+		</div>
+		
+		<script src="popup.js"></script>
+	</body>
 </html>

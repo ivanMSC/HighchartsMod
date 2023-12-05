@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Highcharts Mod",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Una serie de botones para hacer modificaciones al vuelo a graficos que usan la libreria Highcharts.",
   "action": {
     "default_popup": "popup.html"
