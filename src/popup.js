@@ -10,6 +10,9 @@ configurarBoton('CSV', downloadChartData, ["CSV"]);
 configurarBoton('XLS', downloadChartData, ["XLS"]);
 configurarBoton('buttonOFF', toggleAllSeriesVisibility, ["OFF"]);
 configurarBoton('buttonON', toggleAllSeriesVisibility, ["ON"]);
+configurarBoton('button24h', timeSetup, []);
+configurarBoton('buttonMenosT', timeSetup, [false, -1]);
+configurarBoton('buttonMasT', timeSetup, [false, 1]);
 
 function configurarBoton(elementId, funcion, argumentos){
 	document.getElementById(elementId).onclick = () => {
@@ -176,4 +179,64 @@ function funPromediarDatos(title, deltaT, desfase=0, nocturno=false, seriesIndex
 		yAxis : serie.yAxis.userOptions.index
 	});	
 	return "Agregado " + title;
+};
+
+function timeSetup(defaultRefresh = true, sign = 1) {  
+	//defaultRefresh = permiten mostrar las ultimas 24 horas.
+	//sign = 1 para ir hacia adelante, -1 hacia atras
+	//si defaultRefresh = false, se movera la ventana en 50% segun sign
+	
+	// funcion auxiliar para sumar segundos a un Date
+	let addSecondsToDate = (inputDate, secondsToAdd) => {
+	  const newDate = new Date(inputDate); 
+	  newDate.setTime(newDate.getTime() + secondsToAdd); 
+	  return newDate;
+	};
+
+	if (defaultRefresh){
+		// Calcular timestamps inicial y final tal que el rango corresponda a las ultimas 24 horas
+		var now = new Date();
+		var startDate = addSecondsToDate(now, -24*60*60*1000);
+		var endDate = addSecondsToDate(startDate, 24*60*60*1000);
+	}
+	else{		
+		// funcion para parsear dd/mm/yyyy h:mm:ss
+		let datestrToDate = (datestr) => { 
+			var dateParser = /(\d{2})\/(\d{2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})/;
+			var match = datestr.match(dateParser);
+			var outputDate = new Date(
+				match[3],    // year
+				match[2]-1,  // monthIndex
+				match[1],    // day
+				match[4],    // hours
+				match[5],    // minutes
+				match[6]     //seconds
+			);
+			return outputDate;
+		};
+		
+		//Movere la ventana de tiempo en un 50%
+		let dateRange = document.querySelector('input[name="daterange"]').value.split(" - ")
+		let dateRange_start = datestrToDate(dateRange[0]);
+		let dateRange_end = datestrToDate(dateRange[1]);
+		let dif = Math.abs(dateRange_end - dateRange_start) / 2;
+		var startDate = addSecondsToDate(dateRange_start, sign * dif);	
+		var endDate = addSecondsToDate(dateRange_end, sign * dif);		
+	};
+
+	// formato DD/MM/YYYY HH:MM:SS
+	var startDate_str = startDate.toLocaleString('es-ES');
+	var endDate_str = endDate.toLocaleString('es-ES');
+	
+	var dateRangeInput = document.querySelector('input[name="daterange"]');
+	dateRangeInput.value = startDate_str + ' - ' + endDate_str; // Set the date range value
+
+	// Create and dispatch a keyup event (simulating 'Enter' key)
+	var keyupEvent = new KeyboardEvent('keyup', {
+		bubbles: true,
+		cancelable: true,
+		key: 'Enter', // Simulate the 'Enter' key press
+	});
+	dateRangeInput.dispatchEvent(keyupEvent); // Dispatch the keyup event
+	document.querySelector('button[title="Refrescar datos"]').click(); //Click Refrescar datos
 };
