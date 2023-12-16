@@ -13,6 +13,7 @@ configurarBoton('buttonON', toggleAllSeriesVisibility, ["ON"]);
 configurarBoton('button24h', timeSetup, []);
 configurarBoton('buttonMenosT', timeSetup, [false, -1]);
 configurarBoton('buttonMasT', timeSetup, [false, 1]);
+configurarBoton('buttonSumar', funSumarSeries, []);
 
 function configurarBoton(elementId, funcion, argumentos){
 	document.getElementById(elementId).onclick = () => {
@@ -240,3 +241,82 @@ function timeSetup(defaultRefresh = true, sign = 1) {
 	dateRangeInput.dispatchEvent(keyupEvent); // Dispatch the keyup event
 	document.querySelector('button[title="Refrescar datos"]').click(); //Click Refrescar datos
 };
+
+
+function funSumarSeries(){
+	var title = "Suma";
+	var chart = Highcharts.charts.slice(-1)[0];
+	
+	// Eliminar la serie si ya existe en el chart y finalizar
+	for(let i = 0; i < chart.series.length; i++){
+		if(chart.series[i].name === title){
+			chart.series[i].remove();
+			return "Eliminado " + title;
+		}
+	}
+	
+	// Verificar que las series visibles esten todas en un mismo eje Y para poder sumar.
+	
+	// Priemro encontrar los id de los ejes visibles
+	// busco el id de cada eje y pongo un bool que indica si es visible y si no es del minigrafico.
+	// no es eje del minigrafico cuando yAxis.userOptions.id !== "navigator-y-axis"
+	// ejeDeCadaSerie = [index de la serie, index del eje, bool si es visible y no es minigrafico]
+	var ejeDeCadaSerie = chart.series.map( 
+		(S) => [ 	S.index, //index de la serie
+					S.yAxis.userOptions.index , // index del eje y asociado a la serie
+					S.visible && //Serie visible
+						S.yAxis.userOptions.id !== "navigator-y-axis" //el eje de la serie no es del minigrafico
+				] 
+		);
+		
+	// luego filtro el listado dejando solo que e[2] == true (eje visible)
+	var ejesDeSeriesVisibles = ejeDeCadaSerie
+									.filter( (e) => e[2] ) //solo ejes visibles
+									.map( (x) => x[1] );   //me quedo con el index del eje
+	
+	
+	// Verificar que todos los ejes encontrados sean iguales	
+	let allValuesSame = function(x) {
+		if(x.length < 1){return false};
+		for (let i = 1; i < x.length; i++) {
+		  if (x[i] !== x[0]) {
+			return false;
+		  }
+		};
+		return true;
+	};
+	if(!allValuesSame(ejesDeSeriesVisibles)){
+		console.log("DO NOT SUM"); 
+		window.alert("No se puede hacer la operacion porque las series visibles no comparten el eje Y.");
+		return "DO NOT SUM"
+	};
+	
+	// Los indices de las series que voy a sumar:
+	var seriesVisiblesIndex = ejeDeCadaSerie.filter((e) => e[2]).map( (x) => x[0]);	
+	// Los datos de la primera serie alocados en las variables newSeriesDataX y newSeriesDataY 
+	// Aqui voy a ir sumando los datos de las demas series.
+	var newSeriesDataX = chart.series[seriesVisiblesIndex[0]].processedXData.slice();
+	var newSeriesDataY = chart.series[seriesVisiblesIndex[0]].processedYData.slice();
+	
+	// Navegar por cada serie. Si algun elemento de la suma es nulo, la suma es nula.
+	for(let i = 1; i < seriesVisiblesIndex.length; i++){
+		indx = seriesVisiblesIndex[i];
+		var seriesDataY = chart.series[indx].processedYData.slice();
+		for(let j = 0; j<seriesDataY.length; j++){
+			if(seriesDataY[j] == null || newSeriesDataY[j] == null){
+				newSeriesDataY[j] = null;
+			}else{
+				newSeriesDataY[j] += seriesDataY[j];
+			}
+		}
+	};
+	
+	// Insertar los datos en el eje visible
+	chart.addSeries({
+		name: title,
+		data: newSeriesDataX.map( (e,i) => [e, newSeriesDataY[i]] ) ,
+		yAxis :  ejesDeSeriesVisibles[0]
+	});	
+	return "Agregado " + title;
+	
+}
