@@ -44,6 +44,11 @@ function funSetearEjesY(){
 	var chart = Highcharts.charts.slice(-1)[0];
 	chart.yAxis.forEach( (axis) => { axis.update({min : 0}, false)} );
 	chart.yAxis.forEach( (axis) => { axis.update({tickAmount : 13}, false)} );
+	
+	//Agregar crosshairs
+	chart.xAxis[0].update({crosshair : {color:"#999999", width:1, snap:false} }, false);
+	chart.yAxis[0].update({crosshair : {color:"#999999", width:1, snap:false} }, false);
+	
 	chart.redraw();
 }
 
@@ -53,6 +58,21 @@ function funCambiarColores() {
 				 "#008080","#E6BEFF","#AA6E28","#FFFAC8","#800000","#AAFFC3","#808000","#FFD7B4","#000080","#FFFFFF","#000000"];
 
 	var chart = Highcharts.charts.slice(-1)[0];
+	
+	//Ver si los colores son iguales a newColors.
+	alreadyChangedColors = chart.series.map((series, i) => {
+		return series.color == newColors[i % newColors.length];
+	});	
+	
+	// si son iguales a newColors, revolverlos.
+	let shuffleArray = function (array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }};
+	if(alreadyChangedColors.every(Boolean)){shuffleArray(newColors);};
+
+	// Cambiar colores
 	chart.series.forEach((series, i) => {
 		series.update( 
 			{ color: newColors[i % newColors.length] },
