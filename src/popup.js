@@ -302,6 +302,12 @@ function funSumarSeries(){
 	for(let i = 1; i < seriesVisiblesIndex.length; i++){
 		indx = seriesVisiblesIndex[i];
 		var seriesDataY = chart.series[indx].processedYData.slice();
+		// verificar que el largo de la serie actual sea igual al de la serie sumada
+		if( seriesDataY.length !== newSeriesDataY.length ){
+			console.log("DO NOT SUM"); 
+			window.alert("No se puede hacer la operacion porque las series visibles no comparten la granularidad");		
+			return "DO NOT SUM" 
+		};
 		for(let j = 0; j<seriesDataY.length; j++){
 			if(seriesDataY[j] == null || newSeriesDataY[j] == null){
 				newSeriesDataY[j] = null;
