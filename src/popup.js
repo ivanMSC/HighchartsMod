@@ -10,6 +10,10 @@ configurarBoton('CSV', downloadChartData, ["CSV"]);
 configurarBoton('XLS', downloadChartData, ["XLS"]);
 configurarBoton('buttonOFF', toggleAllSeriesVisibility, ["OFF"]);
 configurarBoton('buttonON', toggleAllSeriesVisibility, ["ON"]);
+configurarBoton('button24h', timeSetup, []);
+configurarBoton('buttonMenosT', timeSetup, [false, -1]);
+configurarBoton('buttonMasT', timeSetup, [false, 1]);
+configurarBoton('buttonSumar', funSumarSeries, []);
 
 function configurarBoton(elementId, funcion, argumentos){
 	document.getElementById(elementId).onclick = () => {
@@ -44,6 +48,15 @@ function funSetearEjesY(){
 	var chart = Highcharts.charts.slice(-1)[0];
 	chart.yAxis.forEach( (axis) => { axis.update({min : 0}, false)} );
 	chart.yAxis.forEach( (axis) => { axis.update({tickAmount : 13}, false)} );
+	
+	//Cambiar estilo de gridLines
+	chart.yAxis.forEach( (axis) => { axis.update({gridLineDashStyle : 'Dot', minorGridLineDashStyle : 'Dot'}, false)} );
+	chart.xAxis.forEach( (axis) => { axis.update({gridLineDashStyle : 'Dot', minorGridLineDashStyle : 'Dot'}, false)} );
+	
+	//Agregar crosshairs
+	chart.xAxis[0].update({crosshair : {color:"#999999", width:1, snap:false} }, false);
+	chart.yAxis[0].update({crosshair : {color:"#999999", width:1, snap:false} }, false);
+	
 	chart.redraw();
 }
 
@@ -53,6 +66,21 @@ function funCambiarColores() {
 				 "#008080","#E6BEFF","#AA6E28","#FFFAC8","#800000","#AAFFC3","#808000","#FFD7B4","#000080","#FFFFFF","#000000"];
 
 	var chart = Highcharts.charts.slice(-1)[0];
+	
+	//Ver si los colores son iguales a newColors.
+	alreadyChangedColors = chart.series.map((series, i) => {
+		return series.color == newColors[i % newColors.length];
+	});	
+	
+	// si son iguales a newColors, revolverlos.
+	let shuffleArray = function (array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }};
+	if(alreadyChangedColors.every(Boolean)){shuffleArray(newColors);};
+
+	// Cambiar colores
 	chart.series.forEach((series, i) => {
 		series.update( 
 			{ color: newColors[i % newColors.length] },
@@ -157,3 +185,148 @@ function funPromediarDatos(title, deltaT, desfase=0, nocturno=false, seriesIndex
 	});	
 	return "Agregado " + title;
 };
+
+function timeSetup(defaultRefresh = true, sign = 1) {  
+	//defaultRefresh = permiten mostrar las ultimas 24 horas.
+	//sign = 1 para ir hacia adelante, -1 hacia atras
+	//si defaultRefresh = false, se movera la ventana en 50% segun sign
+	
+	// funcion auxiliar para sumar segundos a un Date
+	let addSecondsToDate = (inputDate, secondsToAdd) => {
+	  const newDate = new Date(inputDate); 
+	  newDate.setTime(newDate.getTime() + secondsToAdd); 
+	  return newDate;
+	};
+
+	if (defaultRefresh){
+		// Calcular timestamps inicial y final tal que el rango corresponda a las ultimas 24 horas
+		var now = new Date();
+		var startDate = addSecondsToDate(now, -24*60*60*1000);
+		var endDate = addSecondsToDate(startDate, 24*60*60*1000);
+	}
+	else{		
+		// funcion para parsear dd/mm/yyyy h:mm:ss
+		let datestrToDate = (datestr) => { 
+			var dateParser = /(\d{2})\/(\d{2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})/;
+			var match = datestr.match(dateParser);
+			var outputDate = new Date(
+				match[3],    // year
+				match[2]-1,  // monthIndex
+				match[1],    // day
+				match[4],    // hours
+				match[5],    // minutes
+				match[6]     //seconds
+			);
+			return outputDate;
+		};
+		
+		//Movere la ventana de tiempo en un 50%
+		let dateRange = document.querySelector('input[name="daterange"]').value.split(" - ")
+		let dateRange_start = datestrToDate(dateRange[0]);
+		let dateRange_end = datestrToDate(dateRange[1]);
+		let dif = Math.abs(dateRange_end - dateRange_start) / 2;
+		var startDate = addSecondsToDate(dateRange_start, sign * dif);	
+		var endDate = addSecondsToDate(dateRange_end, sign * dif);		
+	};
+
+	// formato DD/MM/YYYY HH:MM:SS
+	var startDate_str = startDate.toLocaleString('es-ES');
+	var endDate_str = endDate.toLocaleString('es-ES');
+	
+	var dateRangeInput = document.querySelector('input[name="daterange"]');
+	dateRangeInput.value = startDate_str + ' - ' + endDate_str; // Set the date range value
+
+	// Create and dispatch a keyup event (simulating 'Enter' key)
+	var keyupEvent = new KeyboardEvent('keyup', {
+		bubbles: true,
+		cancelable: true,
+		key: 'Enter', // Simulate the 'Enter' key press
+	});
+	dateRangeInput.dispatchEvent(keyupEvent); // Dispatch the keyup event
+	document.querySelector('button[title="Refrescar datos"]').click(); //Click Refrescar datos
+};
+
+
+function funSumarSeries(){
+	var title = "Suma";
+	var chart = Highcharts.charts.slice(-1)[0];
+	
+	// Eliminar la serie si ya existe en el chart y finalizar
+	for(let i = 0; i < chart.series.length; i++){
+		if(chart.series[i].name === title){
+			chart.series[i].remove();
+			return "Eliminado " + title;
+		}
+	}
+	
+	// Verificar que las series visibles esten todas en un mismo eje Y para poder sumar.
+	
+	// Priemro encontrar los id de los ejes visibles
+	// busco el id de cada eje y pongo un bool que indica si es visible y si no es del minigrafico.
+	// no es eje del minigrafico cuando yAxis.userOptions.id !== "navigator-y-axis"
+	// ejeDeCadaSerie = [index de la serie, index del eje, bool si es visible y no es minigrafico]
+	var ejeDeCadaSerie = chart.series.map( 
+		(S) => [ 	S.index, //index de la serie
+					S.yAxis.userOptions.index , // index del eje y asociado a la serie
+					S.visible && //Serie visible
+						S.yAxis.userOptions.id !== "navigator-y-axis" //el eje de la serie no es del minigrafico
+				] 
+		);
+		
+	// luego filtro el listado dejando solo que e[2] == true (eje visible)
+	var ejesDeSeriesVisibles = ejeDeCadaSerie
+									.filter( (e) => e[2] ) //solo ejes visibles
+									.map( (x) => x[1] );   //me quedo con el index del eje
+	
+	
+	// Verificar que todos los ejes encontrados sean iguales	
+	let allValuesSame = function(x) {
+		if(x.length < 1){return false};
+		for (let i = 1; i < x.length; i++) {
+		  if (x[i] !== x[0]) {
+			return false;
+		  }
+		};
+		return true;
+	};
+	if(!allValuesSame(ejesDeSeriesVisibles)){
+		console.log("DO NOT SUM"); 
+		window.alert("No se puede hacer la operacion porque las series visibles no comparten el eje Y.");
+		return "DO NOT SUM"
+	};
+	
+	// Los indices de las series que voy a sumar:
+	var seriesVisiblesIndex = ejeDeCadaSerie.filter((e) => e[2]).map( (x) => x[0]);	
+	// Los datos de la primera serie alocados en las variables newSeriesDataX y newSeriesDataY 
+	// Aqui voy a ir sumando los datos de las demas series.
+	var newSeriesDataX = chart.series[seriesVisiblesIndex[0]].processedXData.slice();
+	var newSeriesDataY = chart.series[seriesVisiblesIndex[0]].processedYData.slice();
+	
+	// Navegar por cada serie. Si algun elemento de la suma es nulo, la suma es nula.
+	for(let i = 1; i < seriesVisiblesIndex.length; i++){
+		indx = seriesVisiblesIndex[i];
+		var seriesDataY = chart.series[indx].processedYData.slice();
+		// verificar que el largo de la serie actual sea igual al de la serie sumada
+		if( seriesDataY.length !== newSeriesDataY.length ){
+			console.log("DO NOT SUM"); 
+			window.alert("No se puede hacer la operacion porque las series visibles no comparten la granularidad");		
+			return "DO NOT SUM" 
+		};
+		for(let j = 0; j<seriesDataY.length; j++){
+			if(seriesDataY[j] == null || newSeriesDataY[j] == null){
+				newSeriesDataY[j] = null;
+			}else{
+				newSeriesDataY[j] += seriesDataY[j];
+			}
+		}
+	};
+	
+	// Insertar los datos en el eje visible
+	chart.addSeries({
+		name: title,
+		data: newSeriesDataX.map( (e,i) => [e, newSeriesDataY[i]] ) ,
+		yAxis :  ejesDeSeriesVisibles[0]
+	});	
+	return "Agregado " + title;
+	
+}

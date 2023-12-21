@@ -4,7 +4,8 @@
 	  <title>Botonera Pop-Up</title>
 	  <style>
 		.button-row {
-			display: flex;	
+			display: flex; 
+			justify-content: center;  
 		}
 		button {
 			padding: 5px 12px;
@@ -25,6 +26,12 @@
 			<button id="cambiarColores">Color</button>
 			<button id="ejeY">Eje</button>
 		</div>
+		<div class="title"> Tiempo </div>
+		<div class="button-row">
+			<button id="buttonMenosT"><</button>
+			<button id="button24h">24H</button>
+			<button id="buttonMasT">></button>
+		</div> 
 		<div class="title"> Leyendas </div>
 		<div class="button-row">
 			<button id="buttonOFF">OFF</button>
@@ -34,16 +41,20 @@
 		<div class="button-row">
 			<button id="button15">15</button>
 			<button id="button60">60</button>
+			<button id="button1D">1D</button>
 		</div>
 		<div class="button-row">
-			<button id="button1D">1D</button>
-			<button id="buttonNoc">Noc</button>
+			<button id="buttonNoc">Nocturno</button>
 		</div>
 		<div class="title"> Comparativo </div>
 		<div class="button-row">
 			<button id="buttonDesfase1D">-1D</button>
 			<button id="buttonDesfase7D">-7D</button>
 		</div>
+		<div class="title"> Otros Calculos </div>
+		<div class="button-row">
+			<button id="buttonSumar">Suma</button>
+		</div> 		
 		<div class="title"> Descarga </div>
 		<div class="button-row">
 			<button id="CSV">CSV</button>

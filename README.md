@@ -21,8 +21,10 @@ Una extensión de navegador que añade un popup con botones que permiten modific
 3. Usar alguno de los botones de la extensión:
    1. [Color]: Cambia los colores de la serie según una lista de colores predeterminada.
    2. [Eje]: Setea todos los ejes Y del gráfico para que partan en cero.
-   3. [OFF], [ON]: Permite apagar y encender todas las leyendas del grafico.
-   4. [15], [60], [1D]: Crea una nueva serie de promedios cada 15 minutos, 60 minutos y 1 día respectivamente.
-   5. [Noc]: Calcula el promedio de datos entre las 02:00 y 05:00 (hora utc -3). Se asume que los datos vienen en UTC.
-   6. [-1D], [-7D]: Muestra lo mismo que [60] pero del día o semana anterior. Útil para comparar la serie actual con la de ayer o semana pasada.
-   7. [CSV], [XLS]: Exporta los datos mostrados en el gráfico. La descarga no incluye leyendas apagadas.
+   3. [<], [24H], [>]: Permite mover la ventana de tiempo 50% atras, a las ultimas 24 horas y 50% adelante, respectivamente.
+   4. [OFF], [ON]: Permite apagar y encender todas las leyendas del grafico.
+   5. [15], [60], [1D]: Crea una nueva serie de promedios cada 15 minutos, 60 minutos y 1 día respectivamente.
+   6. [Noc]: Calcula el promedio de datos entre las 02:00 y 05:00 (hora utc -3). Se asume que los datos vienen en UTC.
+   7. [-1D], [-7D]: Muestra lo mismo que [60] pero del día o semana anterior. Útil para comparar la serie actual con la de ayer o semana pasada.
+   8. [Suma]: Calcula la suma de todas las series visibles en el grafico. Esto, siempre y cuando todas las series visibles compartan el mismo eje Y y compartan la granularidad.
+   9. [CSV], [XLS]: Exporta los datos mostrados en el gráfico. La descarga no incluye leyendas apagadas.
