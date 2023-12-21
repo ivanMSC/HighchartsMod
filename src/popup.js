@@ -49,6 +49,10 @@ function funSetearEjesY(){
 	chart.yAxis.forEach( (axis) => { axis.update({min : 0}, false)} );
 	chart.yAxis.forEach( (axis) => { axis.update({tickAmount : 13}, false)} );
 	
+	//Cambiar estilo de gridLines
+	chart.yAxis.forEach( (axis) => { axis.update({gridLineDashStyle : 'Dot', minorGridLineDashStyle : 'Dot'}, false)} );
+	chart.xAxis.forEach( (axis) => { axis.update({gridLineDashStyle : 'Dot', minorGridLineDashStyle : 'Dot'}, false)} );
+	
 	//Agregar crosshairs
 	chart.xAxis[0].update({crosshair : {color:"#999999", width:1, snap:false} }, false);
 	chart.yAxis[0].update({crosshair : {color:"#999999", width:1, snap:false} }, false);
